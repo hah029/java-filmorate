@@ -64,41 +64,40 @@ public class FilmController {
 
         log.info("Обновление фильма с id={}", film.getId());
 
-        if (films.containsKey(film.getId())) {
-
-            Film oldFilm = films.get(film.getId());
-
-            if (film.getName() == null || film.getName().isBlank()) {
-                log.error("Ошибка обновления фильма: название не может быть пустым");
-                throw new ValidationException("Название не может быть пустым");
-            }
-
-            if (film.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
-                log.error("Ошибка обновления фильма: описание не может быть длиннее {} символов", MAX_DESCRIPTION_LENGTH);
-                throw new ValidationException(String.format("Описание не может быть длиннее %d символов", MAX_DESCRIPTION_LENGTH));
-            }
-
-            if (film.getReleaseDate().isBefore(START_FILM_DATE)) {
-                log.error("Ошибка обновления фильма: дата релиза не может быть раньше {}", START_FILM_DATE);
-                throw new ValidationException(String.format("Дата релиза не может быть раньше %s", START_FILM_DATE));
-            }
-
-            if (film.getDuration().isNegative()) {
-                log.error("Ошибка обновления фильма: продолжительность фильма не может быть отрицательной");
-                throw new ValidationException("Продолжительность фильма не может быть отрицательной");
-            }
-
-            oldFilm.setName(film.getName());
-            oldFilm.setDescription(film.getDescription());
-            oldFilm.setReleaseDate(film.getReleaseDate());
-            oldFilm.setDuration(film.getDuration());
-
-            log.info("Фильм с id={} успешно обновлен", film.getId());
-            return oldFilm;
+        if (!films.containsKey(film.getId())) {
+            log.error("Ошибка обновления фильма: фильм с указанным id={} не найден", film.getId());
+            throw new NotFoundException("Фильм с указанным Id не найден");
         }
 
-        log.error("Ошибка обновления фильма: фильм с указанным id={} не найден", film.getId());
-        throw new NotFoundException("Фильм с указанным Id не найден");
+        Film oldFilm = films.get(film.getId());
+
+        if (film.getName() == null || film.getName().isBlank()) {
+            log.error("Ошибка обновления фильма: название не может быть пустым");
+            throw new ValidationException("Название не может быть пустым");
+        }
+
+        if (film.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
+            log.error("Ошибка обновления фильма: описание не может быть длиннее {} символов", MAX_DESCRIPTION_LENGTH);
+            throw new ValidationException(String.format("Описание не может быть длиннее %d символов", MAX_DESCRIPTION_LENGTH));
+        }
+
+        if (film.getReleaseDate().isBefore(START_FILM_DATE)) {
+            log.error("Ошибка обновления фильма: дата релиза не может быть раньше {}", START_FILM_DATE);
+            throw new ValidationException(String.format("Дата релиза не может быть раньше %s", START_FILM_DATE));
+        }
+
+        if (film.getDuration().isNegative()) {
+            log.error("Ошибка обновления фильма: продолжительность фильма не может быть отрицательной");
+            throw new ValidationException("Продолжительность фильма не может быть отрицательной");
+        }
+
+        oldFilm.setName(film.getName());
+        oldFilm.setDescription(film.getDescription());
+        oldFilm.setReleaseDate(film.getReleaseDate());
+        oldFilm.setDuration(film.getDuration());
+
+        log.info("Фильм с id={} успешно обновлен", film.getId());
+        return oldFilm;
     }
 
     private int generateId() {

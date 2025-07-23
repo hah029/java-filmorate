@@ -73,50 +73,49 @@ public class UserController {
 
         log.info("Обновление пользователя с id={}", user.getId());
 
-        if (users.containsKey(user.getId())) {
-
-            User oldUser = users.get(user.getId());
-
-            if (user.getEmail() == null || user.getEmail().isBlank()) {
-                log.error("Ошибка создания пользователя: электронная почта не может быть пустой");
-                throw new ValidationException("Электронная почта не может быть пустой");
-            }
-            if (!user.getEmail().contains("@")) {
-                log.error("Ошибка создания пользователя: электронная почта должна содержать символ @");
-                throw new ValidationException("Электронная почта должна содержать символ @");
-            }
-
-            if (user.getLogin() == null || user.getLogin().isBlank()) {
-                log.error("Ошибка создания пользователя: логин не может быть пустым");
-                throw new ValidationException("Логин не может быть пустым");
-            }
-            if (containsWhitespace(user.getLogin())) {
-                log.error("Ошибка создания пользователя: логин не должен содержать пробелы");
-                throw new ValidationException("Логин не должен содержать пробелы");
-            }
-
-            if (user.getName() == null || user.getName().isBlank()) {
-                log.info("Логин ({}) использован в качестве имени пользователя", user.getLogin());
-                user.setName(user.getLogin());
-            }
-
-            LocalDate today = LocalDate.now();
-            if (user.getBirthday() != null && user.getBirthday().isAfter(today)) {
-                log.error("Ошибка создания пользователя: день рождения не может быть больше {}", today);
-                throw new ValidationException("День рождения не может быть больше " + today);
-            }
-
-            oldUser.setLogin(user.getLogin());
-            oldUser.setEmail(user.getEmail());
-            oldUser.setName(user.getName());
-            oldUser.setBirthday(user.getBirthday());
-
-            log.info("Пользователь с id={} успешно обновлен", user.getId());
-            return oldUser;
+        if (!users.containsKey(user.getId())) {
+            log.error("Ошибка обновления пользователя: пользователь с указанным id={} не найден", user.getId());
+            throw new NotFoundException(String.format("Пользователь с указанным id=%d не найден", user.getId()));
         }
 
-        log.error("Ошибка обновления пользователя: пользователь с указанным id={} не найден", user.getId());
-        throw new NotFoundException(String.format("Пользователь с указанным id=%d не найден", user.getId()));
+        User oldUser = users.get(user.getId());
+
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            log.error("Ошибка создания пользователя: электронная почта не может быть пустой");
+            throw new ValidationException("Электронная почта не может быть пустой");
+        }
+        if (!user.getEmail().contains("@")) {
+            log.error("Ошибка создания пользователя: электронная почта должна содержать символ @");
+            throw new ValidationException("Электронная почта должна содержать символ @");
+        }
+
+        if (user.getLogin() == null || user.getLogin().isBlank()) {
+            log.error("Ошибка создания пользователя: логин не может быть пустым");
+            throw new ValidationException("Логин не может быть пустым");
+        }
+        if (containsWhitespace(user.getLogin())) {
+            log.error("Ошибка создания пользователя: логин не должен содержать пробелы");
+            throw new ValidationException("Логин не должен содержать пробелы");
+        }
+
+        if (user.getName() == null || user.getName().isBlank()) {
+            log.info("Логин ({}) использован в качестве имени пользователя", user.getLogin());
+            user.setName(user.getLogin());
+        }
+
+        LocalDate today = LocalDate.now();
+        if (user.getBirthday() != null && user.getBirthday().isAfter(today)) {
+            log.error("Ошибка создания пользователя: день рождения не может быть больше {}", today);
+            throw new ValidationException("День рождения не может быть больше " + today);
+        }
+
+        oldUser.setLogin(user.getLogin());
+        oldUser.setEmail(user.getEmail());
+        oldUser.setName(user.getName());
+        oldUser.setBirthday(user.getBirthday());
+
+        log.info("Пользователь с id={} успешно обновлен", user.getId());
+        return oldUser;
     }
 
     private int generateId() {
@@ -128,7 +127,7 @@ public class UserController {
         return ++currentMaxId;
     }
 
-    private boolean containsWhitespace(String str) {
+    public static boolean containsWhitespace(String str) {
         for (char c : str.toCharArray()) {
             if (Character.isWhitespace(c)) {
                 return true;
