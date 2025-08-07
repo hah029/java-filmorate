@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
