@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class FilmService {
-
     public final FilmStorage storage;
     public final UserStorage userStorage;
     public static final int MAX_DESCRIPTION_LENGTH = 200;
@@ -145,7 +144,6 @@ public class FilmService {
     }
 
     public Collection<Film> getPopularFilms(int count) {
-
         if (count <= 0) {
             throw new ValidationException("Количество count должен быть положительным числом.");
         }
@@ -160,5 +158,4 @@ public class FilmService {
                 ).limit(count)
                 .collect(Collectors.toList());
     }
-
 }

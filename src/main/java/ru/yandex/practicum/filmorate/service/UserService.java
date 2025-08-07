@@ -9,17 +9,13 @@ import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class UserService {
-
     public final UserStorage storage;
-    public static final int MAX_DESCRIPTION_LENGTH = 200;
-    public static final LocalDate START_FILM_DATE = LocalDate.of(1895, Month.DECEMBER, 28);
 
     @Autowired
     public UserService(UserStorage storage) {
@@ -200,5 +196,4 @@ public class UserService {
         }
         return false;
     }
-
 }
