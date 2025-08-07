@@ -29,9 +29,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void delete(int userId) {}
-
-    @Override
     public User update(User user) {
         User oldUser = get(user.getId());
 

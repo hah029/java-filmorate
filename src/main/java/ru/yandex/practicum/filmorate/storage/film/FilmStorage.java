@@ -11,8 +11,6 @@ public interface FilmStorage {
 
     public Film create(Film film);
 
-    public void delete(int filmId);
-
     public Film update(Film film);
 
     public boolean notExists(int filmId);

@@ -11,8 +11,6 @@ public interface UserStorage {
 
     public User create(User user);
 
-    public void delete(int userId);
-
     public User update(User user);
 
     public boolean notExists(int userId);
