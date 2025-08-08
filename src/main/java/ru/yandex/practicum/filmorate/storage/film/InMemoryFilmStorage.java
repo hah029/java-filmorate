@@ -10,13 +10,9 @@ import java.util.HashMap;
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final HashMap<Integer, Film> films = new HashMap<>();
+    private static int currentMaxId = 0;
 
     private int generateId() {
-        int currentMaxId = films.keySet()
-                .stream()
-                .mapToInt(id -> id)
-                .max()
-                .orElse(0);
         return ++currentMaxId;
     }
 

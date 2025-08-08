@@ -10,6 +10,7 @@ import java.util.HashMap;
 public class InMemoryUserStorage implements UserStorage {
 
     private final HashMap<Integer, User> users = new HashMap<>();
+    private static int currentMaxId = 0;
 
     @Override
     public User create(User newUser) {
@@ -47,11 +48,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private int generateId() {
-        int currentMaxId = users.keySet()
-                .stream()
-                .mapToInt(id -> id)
-                .max()
-                .orElse(0);
         return ++currentMaxId;
     }
 
