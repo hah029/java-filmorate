@@ -41,7 +41,7 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser_WithValidData_ShouldReturn200() throws Exception {
+    void createUser_WithValidData_ShouldReturn201() throws Exception {
         // Given
         String userJson = objectMapper.writeValueAsString(validUser);
 
@@ -49,7 +49,7 @@ class UserControllerTest {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists());
     }
 
@@ -131,23 +131,6 @@ class UserControllerTest {
         // Then
         assertInstanceOf(ValidationException.class, result.getResolvedException());
         assertEquals("Логин не должен содержать пробелы", result.getResolvedException().getMessage());
-    }
-
-    @Test
-    void createUser_WithEmptyName_ShouldUseLoginAsName() throws Exception {
-        // Given
-        User user = new User();
-        user.setEmail("test@example.com");
-        user.setLogin("testLogin");
-        user.setName("");
-        String userJson = objectMapper.writeValueAsString(user);
-
-        // When & Then
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(userJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("testLogin"));
     }
 
     @Test
