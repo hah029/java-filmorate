@@ -42,7 +42,7 @@ class FilmControllerTest {
     }
 
     @Test
-    void createFilm_WithValidData_ShouldReturn200() throws Exception {
+    void createFilm_WithValidData_ShouldReturn201() throws Exception {
         // Given
         String filmJson = objectMapper.writeValueAsString(validFilm);
 
@@ -50,7 +50,7 @@ class FilmControllerTest {
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(filmJson))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists());
     }
 
