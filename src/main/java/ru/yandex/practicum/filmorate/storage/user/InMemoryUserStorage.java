@@ -9,7 +9,7 @@ import java.util.HashMap;
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
-    private final HashMap<Integer, User> users = new HashMap<>();
+    private final HashMap<Long, User> users = new HashMap<>();
     private static int currentMaxId = 0;
 
     @Override
@@ -20,12 +20,12 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User get(int userId) {
+    public User get(long userId) {
         return users.get(userId);
     }
 
     @Override
-    public boolean notExists(int userId) {
+    public boolean notExists(long userId) {
         return !users.containsKey(userId);
     }
 
@@ -47,7 +47,7 @@ public class InMemoryUserStorage implements UserStorage {
         return users.values();
     }
 
-    private int generateId() {
+    private long generateId() {
         return ++currentMaxId;
     }
 

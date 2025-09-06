@@ -27,7 +27,7 @@ public class FilmController {
 
     @GetMapping("/{filmId}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<Film> findById(@PathVariable int filmId) {
+    public Optional<Film> findById(@PathVariable long filmId) {
         return service.get(filmId);
     }
 
@@ -45,13 +45,13 @@ public class FilmController {
 
     @PutMapping("/{filmId}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void addLike(@PathVariable int filmId, @PathVariable int userId) {
+    public void addLike(@PathVariable long filmId, @PathVariable long userId) {
         service.addLike(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeLike(@PathVariable int filmId, @PathVariable int userId) {
+    public void removeLike(@PathVariable long filmId, @PathVariable long userId) {
         service.removeLike(filmId, userId);
     }
 

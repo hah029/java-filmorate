@@ -9,10 +9,10 @@ import java.util.HashMap;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private final HashMap<Integer, Film> films = new HashMap<>();
+    private final HashMap<Long, Film> films = new HashMap<>();
     private static int currentMaxId = 0;
 
-    private int generateId() {
+    private long generateId() {
         return ++currentMaxId;
     }
 
@@ -24,12 +24,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film get(int filmId) {
+    public Film get(long filmId) {
         return films.get(filmId);
     }
 
     @Override
-    public boolean notExists(int filmId) {
+    public boolean notExists(long filmId) {
         return !films.containsKey(filmId);
     }
 

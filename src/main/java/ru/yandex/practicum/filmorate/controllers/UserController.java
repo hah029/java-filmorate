@@ -28,7 +28,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<User> findById(@PathVariable int userId) {
+    public Optional<User> findById(@PathVariable long userId) {
         return service.get(userId);
     }
 
@@ -46,25 +46,25 @@ public class UserController {
 
     @PutMapping("/{userId}/friends/{friendId}")
     @ResponseStatus(HttpStatus.OK)
-    public void addFriend(@PathVariable int userId, @PathVariable int friendId) {
+    public void addFriend(@PathVariable long userId, @PathVariable long friendId) {
         service.addFriend(userId, friendId);
     }
 
     @DeleteMapping("/{userId}/friends/{friendId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeFriend(@PathVariable int userId, @PathVariable int friendId) {
+    public void removeFriend(@PathVariable long userId, @PathVariable long friendId) {
         service.removeFriend(userId, friendId);
     }
 
     @GetMapping("/{userId}/friends")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> findAllFriends(@PathVariable int userId) {
+    public Collection<User> findAllFriends(@PathVariable long userId) {
         return service.getFriends(userId);
     }
 
     @GetMapping("/{userId}/friends/common/{otherId}")
     @ResponseStatus(HttpStatus.OK)
-    public Collection<User> findCommonFriends(@PathVariable int userId, @PathVariable int otherId) {
+    public Collection<User> findCommonFriends(@PathVariable long userId, @PathVariable long otherId) {
         return service.getCommonFriends(userId, otherId);
     }
 

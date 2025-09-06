@@ -7,11 +7,11 @@ import java.util.Collection;
 public interface UserStorage {
     public Collection<User> list();
 
-    public User get(int userId);
+    public User get(long userId);
 
     public User create(User user);
 
     public User update(User user);
 
-    public boolean notExists(int userId);
+    public boolean notExists(long userId);
 }

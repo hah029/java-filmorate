@@ -2,11 +2,15 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.models.Film;
+import ru.yandex.practicum.filmorate.models.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MPAStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -22,20 +26,29 @@ import java.util.stream.Collectors;
 public class FilmService {
     public final FilmStorage storage;
     public final UserStorage userStorage;
+    public final GenreStorage genreStorage;
+    public final MPAStorage mpaStorage;
     public static final int MAX_DESCRIPTION_LENGTH = 200;
     public static final LocalDate START_FILM_DATE = LocalDate.of(1895, Month.DECEMBER, 28);
 
     @Autowired
-    public FilmService(FilmStorage storage, UserStorage userStorage) {
+    public FilmService(
+            @Qualifier("filmDbStorage") FilmStorage storage,
+            @Qualifier("userDbStorage") UserStorage userStorage,
+            @Qualifier("genreDbStorage") GenreStorage genreStorage,
+            @Qualifier("mpaDbStorage") MPAStorage mpaStorage
+    ) {
         this.storage = storage;
         this.userStorage = userStorage;
+        this.genreStorage = genreStorage;
+        this.mpaStorage = mpaStorage;
     }
 
     public Collection<Film> getList() {
         return storage.list();
     }
 
-    public Optional<Film> get(int filmId) {
+    public Optional<Film> get(long filmId) {
         return Optional.ofNullable(storage.get(filmId));
     }
 
@@ -57,6 +70,16 @@ public class FilmService {
         if (newFilm.getDuration().isNegative()) {
             log.error("Ошибка добавления фильма: продолжительность фильма не может быть отрицательной");
             throw new ValidationException("Продолжительность фильма не может быть отрицательной");
+        }
+        if (mpaStorage.notExists(newFilm.getMpa().getId())) {
+            log.error("Рейтинг с id {} не найден.", newFilm.getMpa().getId());
+            throw new NotFoundException(String.format("Рейтинг с id %d не найден.", newFilm.getMpa().getId()));
+        }
+        for (Genre genre : newFilm.getGenres()) {
+            if (genreStorage.notExists(genre.getId())) {
+                log.error("Жанр с id {} не найден.", genre.getId());
+                throw new NotFoundException(String.format("Жанр с id %d не найден.", genre.getId()));
+            }
         }
 
         Film addedFilm = storage.create(newFilm);
@@ -105,7 +128,7 @@ public class FilmService {
         return updatedFilm;
     }
 
-    public void addLike(int filmId, int userId) {
+    public void addLike(long filmId, long userId) {
         if (storage.notExists(filmId)) {
             throw new NotFoundException("Фильм с id: " + filmId + " не найден.");
         }
@@ -122,9 +145,10 @@ public class FilmService {
         }
 
         film.getLikes().add(userId);
+        storage.update(film);
     }
 
-    public void removeLike(int filmId, int userId) {
+    public void removeLike(long filmId, long userId) {
         if (storage.notExists(filmId)) {
             throw new NotFoundException("Фильм с id: " + filmId + " не найден.");
         }
@@ -141,6 +165,7 @@ public class FilmService {
         }
 
         film.getLikes().remove(userId);
+        storage.update(film);
     }
 
     public Collection<Film> getPopularFilms(int count) {

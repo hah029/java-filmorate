@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -18,7 +19,7 @@ public class UserService {
     public final UserStorage storage;
 
     @Autowired
-    public UserService(UserStorage storage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage storage) {
         this.storage = storage;
     }
 
@@ -26,7 +27,7 @@ public class UserService {
         return storage.list();
     }
 
-    public Optional<User> get(int userId) {
+    public Optional<User> get(long userId) {
         return Optional.ofNullable(storage.get(userId));
     }
 
@@ -115,7 +116,7 @@ public class UserService {
         return updatedUser;
     }
 
-    public void addFriend(int userId, int friendId) {
+    public void addFriend(long userId, long friendId) {
         if (storage.notExists(userId)) {
             throw new NotFoundException("Пользователь с id: " + userId + " не найден.");
         }
@@ -124,19 +125,18 @@ public class UserService {
         }
 
         User user = storage.get(userId);
-        User friend = storage.get(friendId);
 
-        if (user.getFriends().contains(friendId) || friend.getFriends().contains(userId)) {
+        if (user.getFriends().containsKey(friendId)) {
             throw new ValidationException(
-                    String.format("Пользователи %d и %d уже являются друзьями", userId, friendId)
+                    String.format("Пользователь %d уже находится в списке друзей %d", friendId, userId)
             );
         }
 
-        user.getFriends().add(friendId);
-        friend.getFriends().add(userId);
+        user.getFriends().put(friendId, false);
+        storage.update(user);
     }
 
-    public void removeFriend(int userId, int friendId) {
+    public void removeFriend(long userId, long friendId) {
         if (userId == friendId) {
             throw new ValidationException("Пользователь не может добавить самого себя в друзья");
         }
@@ -149,25 +149,24 @@ public class UserService {
         }
 
         User user = storage.get(userId);
-        User friend = storage.get(friendId);
 
-        if (!user.getFriends().contains(friendId) || !friend.getFriends().contains(userId)) {
+        if (!user.getFriends().containsKey(friendId)) {
             return;
         }
 
         user.getFriends().remove(friendId);
-        friend.getFriends().remove(userId);
+        storage.update(user);
     }
 
-    public Collection<User> getFriends(int userId) {
+    public Collection<User> getFriends(long userId) {
         if (storage.notExists(userId)) {
             throw new NotFoundException("Пользователь с id: " + userId + " не найден.");
         }
         User user = storage.get(userId);
-        return user.getFriends().stream().map(storage::get).collect(Collectors.toList());
+        return user.getFriends().keySet().stream().map(storage::get).collect(Collectors.toList());
     }
 
-    public Collection<User> getCommonFriends(int userId, int otherId) {
+    public Collection<User> getCommonFriends(long userId, long otherId) {
         if (storage.notExists(userId)) {
             throw new NotFoundException("Пользователь с id: " + userId + " не найден.");
         }
@@ -178,10 +177,10 @@ public class UserService {
         User user = storage.get(userId);
         User other = storage.get(otherId);
 
-        Set<Integer> userFriends = user.getFriends();
-        Set<Integer> otherFriends = other.getFriends();
+        Set<Long> userFriends = user.getFriends().keySet();
+        Set<Long> otherFriends = other.getFriends().keySet();
 
-        Set<Integer> commonFriends = new HashSet<>(userFriends);
+        Set<Long> commonFriends = new HashSet<>(userFriends);
         commonFriends.retainAll(otherFriends);
 
         return commonFriends.stream().map(storage::get).collect(Collectors.toList());

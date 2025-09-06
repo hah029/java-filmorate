@@ -1,2 +1,5 @@
 # java-filmorate
-Template repository for Filmorate project.
+
+## Модель данных
+### ERD-диаграмма
+![schema](schema.png)
