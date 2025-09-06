@@ -56,12 +56,14 @@ public class UserDbStorage implements UserStorage {
                 "email = ?, login = ?, name = ?, birthday = ? " +
                 "WHERE id = ?";
 
-        jdbc.update(query
-            , user.getEmail()
-            , user.getLogin()
-            , user.getName()
-            , user.getBirthday().toString()
-            , user.getId());
+        jdbc.update(
+            query,
+            user.getEmail(),
+            user.getLogin(),
+            user.getName(),
+            user.getBirthday().toString(),
+            user.getId()
+        );
 
         saveFriends(user);
         return user;
