@@ -1,23 +1,20 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.models.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
-import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
+@RequiredArgsConstructor
 public class FilmController {
     private final FilmService service;
-
-    @Autowired
-    public FilmController(FilmService service) {
-        this.service = service;
-    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -27,7 +24,7 @@ public class FilmController {
 
     @GetMapping("/{filmId}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<Film> findById(@PathVariable int filmId) {
+    public Film findById(@PathVariable long filmId) {
         return service.get(filmId);
     }
 
@@ -45,13 +42,13 @@ public class FilmController {
 
     @PutMapping("/{filmId}/like/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public void addLike(@PathVariable int filmId, @PathVariable int userId) {
+    public void addLike(@PathVariable long filmId, @PathVariable long userId) {
         service.addLike(filmId, userId);
     }
 
     @DeleteMapping("/{filmId}/like/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeLike(@PathVariable int filmId, @PathVariable int userId) {
+    public void removeLike(@PathVariable long filmId, @PathVariable long userId) {
         service.removeLike(filmId, userId);
     }
 
