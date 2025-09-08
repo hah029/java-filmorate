@@ -17,11 +17,13 @@ public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbc;
     private final UserRowMapper mapper;
 
+    @Override
     public Collection<User> list() {
         String query = "SELECT * FROM users";
         return jdbc.query(query, mapper);
     }
 
+    @Override
     public User get(long id) {
         String query = "SELECT * FROM users WHERE id = ? LIMIT 1";
         User user = jdbc.queryForObject(query, mapper, id);
@@ -31,6 +33,7 @@ public class UserDbStorage implements UserStorage {
         return user;
     }
 
+    @Override
     public User create(User user) {
         String query = "INSERT INTO users (email, login, name, birthday) " +
                 "VALUES (?, ?, ?, ?)";
@@ -51,6 +54,7 @@ public class UserDbStorage implements UserStorage {
         return user;
     }
 
+    @Override
     public User update(User user) {
         String query = "UPDATE users SET " +
                 "email = ?, login = ?, name = ?, birthday = ? " +

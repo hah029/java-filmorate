@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -15,25 +14,23 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
     public final UserStorage storage;
-
-    @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage storage) {
-        this.storage = storage;
-    }
 
     public Collection<User> getList() {
         return storage.list();
     }
 
-    public Optional<User> get(long userId) {
-        return Optional.ofNullable(storage.get(userId));
+    public User get(long userId) {
+        if (storage.notExists(userId)) {
+            log.error("Пользователь с id = {} не найден", userId);
+            throw new NotFoundException(String.format("Пользователь с id = %d не найден", userId));
+        }
+        return storage.get(userId);
     }
 
     public User add(User newUser) {
-        log.info("Добавление пользователя {}", newUser);
-
         if (newUser.getEmail() == null || newUser.getEmail().isBlank()) {
             log.error("Ошибка добавления пользователя: электронная почта не может быть пустой");
             throw new ValidationException("Электронная почта не может быть пустой");
@@ -42,7 +39,6 @@ public class UserService {
             log.error("Ошибка добавления пользователя: электронная почта должна содержать символ @");
             throw new ValidationException("Электронная почта должна содержать символ @");
         }
-
         if (newUser.getLogin() == null || newUser.getLogin().isBlank()) {
             log.error("Ошибка добавления пользователя: логин не может быть пустым");
             throw new ValidationException("Логин не может быть пустым");
@@ -51,9 +47,8 @@ public class UserService {
             log.error("Ошибка добавления пользователя: логин не должен содержать пробелы");
             throw new ValidationException("Логин не должен содержать пробелы");
         }
-
         if (newUser.getName() == null || newUser.getName().isBlank()) {
-            log.info("Логин ({}) использован в качестве имени пользователя", newUser.getLogin());
+            log.trace("Логин ({}) использован в качестве имени пользователя", newUser.getLogin());
             newUser.setName(newUser.getLogin());
         }
 
@@ -63,10 +58,7 @@ public class UserService {
             throw new ValidationException("День рождения не может быть больше " + today);
         }
 
-        User addedUser = storage.create(newUser);
-
-        log.info("Добавлен новый пользователь с id={}", addedUser.getId());
-        return addedUser;
+        return storage.create(newUser);
     }
 
     public User update(User user) {
@@ -74,14 +66,10 @@ public class UserService {
             log.error("Ошибка обновления пользователя: id должен быть указан");
             throw new ValidationException("Id должен быть указан");
         }
-
-        log.info("Обновление пользователя с id={}", user.getId());
-
         if (storage.notExists(user.getId())) {
             log.error("Ошибка обновления пользователя: пользователь с указанным id={} не найден", user.getId());
             throw new NotFoundException(String.format("Пользователь с указанным id=%d не найден", user.getId()));
         }
-
         if (user.getEmail() == null || user.getEmail().isBlank()) {
             log.error("Ошибка создания пользователя: электронная почта не может быть пустой");
             throw new ValidationException("Электронная почта не может быть пустой");
@@ -90,7 +78,6 @@ public class UserService {
             log.error("Ошибка создания пользователя: электронная почта должна содержать символ @");
             throw new ValidationException("Электронная почта должна содержать символ @");
         }
-
         if (user.getLogin() == null || user.getLogin().isBlank()) {
             log.error("Ошибка создания пользователя: логин не может быть пустым");
             throw new ValidationException("Логин не может быть пустым");
@@ -99,9 +86,8 @@ public class UserService {
             log.error("Ошибка создания пользователя: логин не должен содержать пробелы");
             throw new ValidationException("Логин не должен содержать пробелы");
         }
-
         if (user.getName() == null || user.getName().isBlank()) {
-            log.info("Логин ({}) использован в качестве имени пользователя", user.getLogin());
+            log.trace("Логин ({}) использован в качестве имени пользователя", user.getLogin());
             user.setName(user.getLogin());
         }
 
@@ -111,22 +97,23 @@ public class UserService {
             throw new ValidationException("День рождения не может быть больше " + today);
         }
 
-        User updatedUser = storage.update(user);
-        log.info("Пользователь с id={} успешно обновлен", updatedUser.getId());
-        return updatedUser;
+        return storage.update(user);
     }
 
     public void addFriend(long userId, long friendId) {
         if (storage.notExists(userId)) {
+            log.error("Пользователь с id: {} не найден.", userId);
             throw new NotFoundException("Пользователь с id: " + userId + " не найден.");
         }
         if (storage.notExists(friendId)) {
+            log.error("Друг с id: {} не найден.", friendId);
             throw new NotFoundException("Пользователь с id: " + friendId + "не найден.");
         }
 
         User user = storage.get(userId);
 
         if (user.getFriends().containsKey(friendId)) {
+            log.error("Пользователь {} уже находится в списке друзей {}", friendId, userId);
             throw new ValidationException(
                     String.format("Пользователь %d уже находится в списке друзей %d", friendId, userId)
             );
@@ -138,19 +125,22 @@ public class UserService {
 
     public void removeFriend(long userId, long friendId) {
         if (userId == friendId) {
+            log.error("Пользователь не может добавить самого себя в друзья");
             throw new ValidationException("Пользователь не может добавить самого себя в друзья");
         }
-
         if (storage.notExists(userId)) {
+            log.error("Пользователь с id: {} не найден.", userId);
             throw new NotFoundException("Пользователь с id: " + userId + " не найден.");
         }
         if (storage.notExists(friendId)) {
-            throw new NotFoundException("Пользователь с id: " + friendId + "не найден.");
+            log.error("Друг с id: {} не найден.", friendId);
+            throw new NotFoundException("Друг с id: " + friendId + "не найден.");
         }
 
         User user = storage.get(userId);
 
         if (!user.getFriends().containsKey(friendId)) {
+            log.trace("Не получилось удалить друга {} из списка друзей пользователя {}. Друг не найден.", friendId, userId);
             return;
         }
 
@@ -160,6 +150,7 @@ public class UserService {
 
     public Collection<User> getFriends(long userId) {
         if (storage.notExists(userId)) {
+            log.error("Пользователь с id: {} не найден.", userId);
             throw new NotFoundException("Пользователь с id: " + userId + " не найден.");
         }
         User user = storage.get(userId);
@@ -168,9 +159,11 @@ public class UserService {
 
     public Collection<User> getCommonFriends(long userId, long otherId) {
         if (storage.notExists(userId)) {
+            log.error("Пользователь с id: {} не найден.", userId);
             throw new NotFoundException("Пользователь с id: " + userId + " не найден.");
         }
         if (storage.notExists(otherId)) {
+            log.error("Пользователь с id: {} не найден.", otherId);
             throw new NotFoundException("Пользователь с id: " + otherId + " не найден.");
         }
 

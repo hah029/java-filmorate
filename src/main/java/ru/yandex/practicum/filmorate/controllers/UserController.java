@@ -1,24 +1,18 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.models.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
-
     private final UserService service;
-
-    @Autowired
-    public UserController(UserService service) {
-        this.service = service;
-    }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -28,7 +22,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public Optional<User> findById(@PathVariable long userId) {
+    public User findById(@PathVariable long userId) {
         return service.get(userId);
     }
 

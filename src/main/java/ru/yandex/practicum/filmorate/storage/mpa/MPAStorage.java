@@ -5,9 +5,9 @@ import ru.yandex.practicum.filmorate.models.MPA;
 import java.util.Collection;
 
 public interface MPAStorage {
-    public Collection<MPA> list();
+    Collection<MPA> list();
 
-    public MPA get(long id);
+    MPA get(long id);
 
-    public boolean notExists(long id);
+    boolean notExists(long id);
 }

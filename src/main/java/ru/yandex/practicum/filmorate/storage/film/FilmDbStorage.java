@@ -22,6 +22,7 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbc;
     private final FilmRowMapper mapper;
 
+    @Override
     public Collection<Film> list() {
         String query = "SELECT * FROM films";
         Collection<Film> films = jdbc.query(query, mapper);
@@ -37,6 +38,7 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
+    @Override
     public Film get(long id) {
         String query = "SELECT * FROM films WHERE id = ? LIMIT 1";
         Film film = jdbc.queryForObject(query, mapper, id);
@@ -48,6 +50,7 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
+    @Override
     public Film create(Film film) {
         String query = "INSERT INTO films (name, description, release_date, mpa_id, duration) " +
                 "VALUES (?, ?, ?, ?, ?)";
@@ -74,6 +77,7 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
+    @Override
     public Film update(Film film) {
         String query = "UPDATE films SET " +
                 "name = ?, description = ?, release_date = ?, mpa_id = ?, duration = ? " +

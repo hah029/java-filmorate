@@ -13,6 +13,7 @@ import java.util.Collection;
 public class MPADbStorage implements MPAStorage {
     private final JdbcTemplate jdbc;
 
+    @Override
     public Collection<MPA> list() {
         String sql = "SELECT * FROM mpa";
         return jdbc.query(sql, (rs, rowNum) -> {
@@ -23,6 +24,7 @@ public class MPADbStorage implements MPAStorage {
         });
     }
 
+    @Override
     public MPA get(long id) {
         String sql = "SELECT * FROM mpa WHERE id = ?";
         return jdbc.queryForObject(sql, (rs, rowNum) -> {

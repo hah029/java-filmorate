@@ -12,6 +12,7 @@ import java.util.Collection;
 public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbc;
 
+    @Override
     public Collection<Genre> list() {
         String sql = "SELECT * FROM genres";
         return jdbc.query(sql, (rs, rowNum) -> {
@@ -22,6 +23,7 @@ public class GenreDbStorage implements GenreStorage {
         });
     }
 
+    @Override
     public Genre get(long id) {
         String sql = "SELECT * FROM genres WHERE id = ?";
         return jdbc.queryForObject(sql, (rs, rowNum) -> {
